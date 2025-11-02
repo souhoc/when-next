@@ -86,7 +86,7 @@ type model struct {
 func (m model) GetSelected() ([]time.Time, error) {
 	dates := make([]time.Time, 0, len(m.selected))
 	for dateStr := range m.selected {
-		date, err := time.Parse(m.TimeLayout, dateStr)
+		date, err := time.Parse(time.DateOnly, dateStr)
 		if err != nil {
 			return nil, fmt.Errorf("failed to parse %s: %w", dateStr, err)
 		}
@@ -149,11 +149,11 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		case key.Matches(msg, m.Keys.Select):
 			currDate := m.dates[m.cursor]
-			_, ok := m.selected[currDate.Format(m.TimeLayout)]
+			_, ok := m.selected[currDate.Format(time.DateOnly)]
 			if ok {
-				delete(m.selected, currDate.Format(m.TimeLayout))
+				delete(m.selected, currDate.Format(time.DateOnly))
 			} else {
-				m.selected[currDate.Format(m.TimeLayout)] = struct{}{}
+				m.selected[currDate.Format(time.DateOnly)] = struct{}{}
 			}
 		case key.Matches(msg, m.Keys.Validate):
 			return m, tea.Quit
@@ -184,7 +184,7 @@ func (m model) View() string {
 			cursor = "▶︎" // Cursor is on this line
 		}
 		dateRender := m.Styles.Date.Render
-		if _, ok := m.selected[date.Format(m.TimeLayout)]; ok {
+		if _, ok := m.selected[date.Format(time.DateOnly)]; ok {
 			dateRender = m.Styles.Selected.Render
 		}
 		since := time.Until(date).Round(time.Hour * 24)
